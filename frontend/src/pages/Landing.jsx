@@ -21,7 +21,7 @@ const Landing = () => {
           <h2><span style={{color:"orange"}}>Connect</span> with anyone, anywhere</h2>
           <p>Experience seamless video calls with our user-friendly platform. Connect with friends, family, and colleagues effortlessly.</p>
           <div role='button'>
-            <Link to="/home">Get Started</Link>
+            <Link to="/auth">Get Started</Link>
           </div>
         </div>
         <div className='imgContainer'>
