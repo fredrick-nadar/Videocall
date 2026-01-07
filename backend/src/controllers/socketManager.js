@@ -1,4 +1,3 @@
-import { connect } from "node:http2";
 import { Server } from "socket.io";
 
 let connections={}
@@ -15,15 +14,18 @@ const connectToSocket = (server) => {
   });
 
   io.on("connection", (socket)=>{
-     socket.on("join",(path)=>{
+
+    console.log("Something connected");
+
+     socket.on("join-call",(path)=>{
       if(connections[path] === undefined){
         connections[path] = []
       }
       connections[path].push(socket.id)
       timeOnline[socket.id] = new Date();
 
-      for(let a =0;a < connections[path].length;i++){
-        io.to(connections[path][a].emit("user-joined", socketid));
+      for(let a = 0; a < connections[path].length; a++){
+        io.to(connections[path][a]).emit("user-joined", socket.id, connections[path]);
       }
 
       if(messages[path] !== undefined){
@@ -34,15 +36,16 @@ const connectToSocket = (server) => {
      })
 
      socket.on("signal",(toId,message)=>{
-      io.to.apply(toId).emit("signal",socket.id,message);
+      io.to(toId).emit("signal",socket.id,message);
      })
 
      socket.on("chat-messsage",(data,sender)=>{
 
       const[matchingRoom,foundRoom] = Object.entries(connections).reduce(([foundRoom,isFound],[roomKey,roomValue])=>{
         if(!isFound && roomValue.includes(socket.id)){
-          return [roomKey,isFound];
+          return [roomKey, true];
         }
+        return [foundRoom, isFound];
       },['',false]);
       if(foundRoom === true){
         if(messages[matchingRoom]=== undefined){
@@ -72,7 +75,7 @@ const connectToSocket = (server) => {
             }
 
             var index = connections[key].indexOf(socket.id);
-            connections.key.splice(index, 1);
+            connections[roomKey].splice(index, 1);
 
             if(connections[key].length === 0){
               delete connections[key];

@@ -30,6 +30,13 @@ const register = async (req, res) => {
     try {
         const { username, password, name } = req.body;
 
+        console.log('Registration request received:', { username, password: password ? '***' : undefined, name });
+
+        // Validate input
+        if (!username || !password || !name) {
+            return res.status(httpStatus.BAD_REQUEST).json({ message: 'Username, password, and name are required' });
+        }
+
         // Check if user already exists
         const existingUser = await User.findOne({ username });
         if (existingUser) {
@@ -37,17 +44,29 @@ const register = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+        console.log('Creating new user document...');
+        
         const newUser = new User({
             username: username,
             password: hashedPassword,
             name: name
         });
 
-        await newUser.save();
-        return res.status(httpStatus.CREATED).json({ message: 'User registered successfully' });
+        console.log('Attempting to save user to database...');
+        const savedUser = await newUser.save();
+        console.log('User saved successfully:', savedUser);
+        
+        return res.status(httpStatus.CREATED).json({ 
+            message: 'User registered successfully',
+            user: {
+                id: savedUser._id,
+                username: savedUser.username,
+                name: savedUser.name
+            }
+        });
     } catch (error) {
         console.error('Error during registration:', error);
-        res.json({
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
             message: `Something went wrong during registration: ${error.message}`
         });
     }

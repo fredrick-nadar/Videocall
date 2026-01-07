@@ -10,9 +10,9 @@ const Landing = () => {
           <h1 style={{fontSize: "2rem"}}>Welcome to VideoCall</h1>
         </div>
         <div className='navHeader'>
-          <button>Join as Guest</button>
-          <button>Register</button>
-          <button>Sign In</button>
+          <button path='/guest'>Join as Guest</button>
+          <button path='/auth'>Register</button>
+          <button path='/auth'>Sign In</button>
         </div>
       </nav>
 

@@ -1,15 +1,20 @@
 import {Route,BrowserRouter as Router, Routes} from 'react-router-dom';
 import Landing from './pages/Landing.jsx';
 import AuthPage from './pages/AuthPage.jsx';
+import { AuthProvider } from './contexts/AuthContext.jsx';
+import VideoMeet from './pages/VideoMeet.jsx';
 
 function App() {
   return (
     <>
     <Router>
+      <AuthProvider>
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/:url" element={<VideoMeet />} />
       </Routes>
+      </AuthProvider>
     </Router>
     </>
   );

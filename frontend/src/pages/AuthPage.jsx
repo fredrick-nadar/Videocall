@@ -11,6 +11,8 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { AuthContext } from '../contexts/AuthContext';
+import Snackbar from '@mui/material/Snackbar';
 
 const defaultTheme = createTheme({
   palette: {
@@ -29,8 +31,39 @@ export default function AuthPage() {
     const[password, setPassword] = React.useState('');
     const[error, setError] = React.useState('');
     const[name,setName] = React.useState('');
+    const[message,setMessage] = React.useState('');
     const[formState,setFormState] = React.useState('0');
     const[open,setOpen] = React.useState(false);
+
+    const{handleLogin,handleRegister} = React.useContext(AuthContext);
+
+    let handleAuth = async (e) => {
+      e.preventDefault();
+      console.log('Form submitted! State:', formState);
+      console.log('Form data:', { name, userName, password: password ? '***' : undefined });
+      try{
+        if(formState === '0'){
+          console.log('Attempting login...');
+          let response = await handleLogin(userName,password);
+            
+          console.log('Login response:', response);
+
+          
+        }
+        if(formState === '1'){
+          console.log('Attempting registration...');
+          let response = await handleRegister(name,userName,password);
+          console.log('Registration response:', response);
+          setMessage(response);
+          setOpen(true);
+          setError("");
+          setFormState(0)
+        }
+      }catch(err){
+        let message = (err.response.data.message)
+        setError( message);
+      }
+    }
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -164,7 +197,7 @@ export default function AuthPage() {
                   Sign Up
                 </Button>
             </Box>
-            <Box component="form" noValidate onSubmit sx={{ mt: 1, width: '100%' }}>
+            <Box component="form" noValidate onSubmit={handleAuth} sx={{ mt: 1, width: '100%' }}>
                 {formState === '1' && (<TextField
                 margin="normal"
                 required
@@ -237,16 +270,8 @@ export default function AuthPage() {
                   },
                 }}
               />
-              <FormControlLabel
-                control={<Checkbox value="remember" sx={{
-                  color: '#ff6b35',
-                  '&.Mui-checked': {
-                    color: '#ff6b35',
-                  },
-                }} />}
-                label="Remember me"
-                sx={{ mt: 1 }}
-              />
+
+              <p style={{ color: 'red' }}>{error}</p>
               <Button
                 type="submit"
                 fullWidth
@@ -269,12 +294,19 @@ export default function AuthPage() {
                   transition: 'all 0.3s ease',
                 }}
               >
-                {formState === '0' ? 'Sign In' : 'Sign Up'}
+                {formState === '0' ? 'Login' : 'Register'}
               </Button>
             </Box>
           </Box>
         </Grid>
       </Grid>
+      <Snackbar
+      open={open}
+      autoHideDuration={4000}
+      onClose={() => setOpen(false)}
+      message={message}
+      
+      />
     </ThemeProvider>
   );
 }
