@@ -18,10 +18,10 @@ import { useNavigate } from 'react-router-dom';
 const defaultTheme = createTheme({
   palette: {
     primary: {
-      main: '#ff6b35',
+      main: '#000000',
     },
     secondary: {
-      main: '#ff8c42',
+      main: '#333333',
     },
   },
 });
@@ -135,11 +135,10 @@ export default function AuthPage() {
           >
             <Avatar sx={{ 
               m: 1, 
-              bgcolor: 'transparent',
-              background: 'linear-gradient(135deg, #ff6b35, #ff8c42)',
+              bgcolor: '#000',
               width: 56,
               height: 56,
-              boxShadow: '0 4px 15px rgba(255, 107, 53, 0.3)'
+              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)'
             }}>
               <LockOutlinedIcon sx={{ fontSize: 30 }} />
             </Avatar>
@@ -156,18 +155,19 @@ export default function AuthPage() {
                     textTransform: 'none',
                     fontWeight: 600,
                     ...(formState === '0' ? {
-                      background: 'linear-gradient(135deg, #ff6b35, #ff8c42)',
-                      boxShadow: '0 4px 15px rgba(255, 107, 53, 0.3)',
+                      background: '#000',
+                      color: '#fff',
+                      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)',
                       '&:hover': {
-                        background: 'linear-gradient(135deg, #ff8c42, #ffa500)',
-                        boxShadow: '0 6px 20px rgba(255, 107, 53, 0.4)',
+                        background: '#333',
+                        boxShadow: '0 6px 20px rgba(0, 0, 0, 0.4)',
                       }
                     } : {
-                      borderColor: '#ff6b35',
-                      color: '#ff6b35',
+                      borderColor: '#000',
+                      color: '#000',
                       '&:hover': {
-                        borderColor: '#ff8c42',
-                        backgroundColor: 'rgba(255, 107, 53, 0.05)',
+                        borderColor: '#333',
+                        backgroundColor: 'rgba(0, 0, 0, 0.05)',
                       }
                     })
                   }}
@@ -183,18 +183,19 @@ export default function AuthPage() {
                     textTransform: 'none',
                     fontWeight: 600,
                     ...(formState === '1' ? {
-                      background: 'linear-gradient(135deg, #ff6b35, #ff8c42)',
-                      boxShadow: '0 4px 15px rgba(255, 107, 53, 0.3)',
+                      background: '#000',
+                      color: '#fff',
+                      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)',
                       '&:hover': {
-                        background: 'linear-gradient(135deg, #ff8c42, #ffa500)',
-                        boxShadow: '0 6px 20px rgba(255, 107, 53, 0.4)',
+                        background: '#333',
+                        boxShadow: '0 6px 20px rgba(0, 0, 0, 0.4)',
                       }
                     } : {
-                      borderColor: '#ff6b35',
-                      color: '#ff6b35',
+                      borderColor: '#000',
+                      color: '#000',
                       '&:hover': {
-                        borderColor: '#ff8c42',
-                        backgroundColor: 'rgba(255, 107, 53, 0.05)',
+                        borderColor: '#333',
+                        backgroundColor: 'rgba(0, 0, 0, 0.05)',
                       }
                     })
                   }}
@@ -216,14 +217,14 @@ export default function AuthPage() {
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
                     '&:hover fieldset': {
-                      borderColor: '#ff6b35',
+                      borderColor: '#000',
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: '#ff6b35',
+                      borderColor: '#000',
                     },
                   },
                   '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#ff6b35',
+                    color: '#000',
                   },
                 }}
               />)}
@@ -240,14 +241,14 @@ export default function AuthPage() {
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
                     '&:hover fieldset': {
-                      borderColor: '#ff6b35',
+                      borderColor: '#000',
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: '#ff6b35',
+                      borderColor: '#000',
                     },
                   },
                   '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#ff6b35',
+                    color: '#000',
                   },
                 }}
               />
@@ -264,14 +265,14 @@ export default function AuthPage() {
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
                     '&:hover fieldset': {
-                      borderColor: '#ff6b35',
+                      borderColor: '#000',
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: '#ff6b35',
+                      borderColor: '#000',
                     },
                   },
                   '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#ff6b35',
+                    color: '#000',
                   },
                 }}
               />
@@ -289,11 +290,12 @@ export default function AuthPage() {
                   textTransform: 'none',
                   fontSize: '1.1rem',
                   fontWeight: 600,
-                  background: 'linear-gradient(135deg, #ff6b35, #ff8c42)',
-                  boxShadow: '0 4px 15px rgba(255, 107, 53, 0.3)',
+                  background: '#000',
+                  color: '#fff',
+                  boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)',
                   '&:hover': {
-                    background: 'linear-gradient(135deg, #ff8c42, #ffa500)',
-                    boxShadow: '0 6px 20px rgba(255, 107, 53, 0.4)',
+                    background: '#333',
+                    boxShadow: '0 6px 20px rgba(0, 0, 0, 0.4)',
                     transform: 'translateY(-2px)',
                   },
                   transition: 'all 0.3s ease',

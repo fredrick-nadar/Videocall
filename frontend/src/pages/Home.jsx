@@ -49,7 +49,12 @@ function Home() {
             <div className="navBar">
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <VideoCallIcon sx={{ fontSize: 40, color: "#000" }} />
-                    <h2 style={{ margin: 0, color: "#000", fontWeight: 700 }}>VideoCall Pro</h2>
+                    <div>
+                        <h2 style={{ margin: 0, color: "#000", fontWeight: 700 }}>VideoCall Pro</h2>
+                        <p style={{ margin: 0, fontSize: "0.9rem", color: "#666" }}>
+                            Welcome !! {localStorage.getItem("username") || "User"}
+                        </p>
+                    </div>
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>

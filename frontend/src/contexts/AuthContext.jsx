@@ -38,6 +38,7 @@ const handleLogin = async (username,password) => {
         })
     if(request.status === httpStatus.OK){
         localStorage.setItem("token",request.data.token);
+        localStorage.setItem("username",username);
         return request.data.message || "Login successful";
         
     }
