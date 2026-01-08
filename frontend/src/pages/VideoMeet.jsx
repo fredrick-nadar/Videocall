@@ -14,6 +14,7 @@ import ChatIcon from '@mui/icons-material/Chat'
 import CloseIcon from '@mui/icons-material/Close'
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 
 const server_url = "http://localhost:8000"; // Replace with your signaling server URL
 
@@ -50,7 +51,7 @@ export default function VideoMeetComponent() {
 
     let [message, setMessage] = useState("");
 
-    let [newMessages, setNewMessages] = useState(3);
+    let [newMessages, setNewMessages] = useState(0);
 
     let [askForUsername, setAskForUsername] = useState(true);
 
@@ -59,6 +60,13 @@ export default function VideoMeetComponent() {
     const videoRef = useRef([])
 
     let [videos, setVideos] = useState([])
+
+    // Waiting room states
+    let [isHost, setIsHost] = useState(false);
+    let [isWaiting, setIsWaiting] = useState(false);
+    let [isApproved, setIsApproved] = useState(false);
+    let [isRejected, setIsRejected] = useState(false);
+    let [joinRequests, setJoinRequests] = useState([]);
 
     useEffect(() => {
         getPermissions();
@@ -259,8 +267,42 @@ export default function VideoMeetComponent() {
         socketRef.current.on('signal', gotMessageFromServer)
 
         socketRef.current.on('connect', () => {
-            socketRef.current.emit('join-call', window.location.href)
+            const storedUsername = localStorage.getItem("username") || "Anonymous";
+            socketRef.current.emit('join-call', window.location.href, storedUsername)
             socketIdRef.current = socketRef.current.id
+
+            // Listen for host status
+            socketRef.current.on('you-are-host', () => {
+                setIsHost(true);
+                setIsApproved(true);
+                console.log("You are the host!");
+            });
+
+            // Listen for waiting room status
+            socketRef.current.on('waiting-for-approval', () => {
+                setIsWaiting(true);
+                console.log("Waiting for host approval...");
+            });
+
+            // Listen for approval
+            socketRef.current.on('approved', () => {
+                setIsWaiting(false);
+                setIsApproved(true);
+                console.log("You have been approved!");
+            });
+
+            // Listen for rejection
+            socketRef.current.on('rejected', () => {
+                setIsWaiting(false);
+                setIsRejected(true);
+                console.log("You have been rejected by the host.");
+            });
+
+            // Listen for join requests (host only)
+            socketRef.current.on('join-request', (participant) => {
+                setJoinRequests(prev => [...prev, participant]);
+                console.log("Join request from:", participant.username);
+            });
 
             socketRef.current.on('chat-message', addMessage)
 
@@ -374,6 +416,17 @@ export default function VideoMeetComponent() {
 
     let handleAudio = () => {
         setAudio(!audio)
+    }
+
+    // Host functions for approving/rejecting participants
+    let approveParticipant = (participantSocketId) => {
+        socketRef.current.emit('approve-participant', window.location.href, participantSocketId);
+        setJoinRequests(prev => prev.filter(p => p.socketId !== participantSocketId));
+    }
+
+    let rejectParticipant = (participantSocketId) => {
+        socketRef.current.emit('reject-participant', window.location.href, participantSocketId);
+        setJoinRequests(prev => prev.filter(p => p.socketId !== participantSocketId));
     }
 
     useEffect(() => {
@@ -560,7 +613,203 @@ export default function VideoMeetComponent() {
                     </Box>
                 </Box> :
 
+                // Waiting room UI (for participants waiting for approval)
+                isWaiting ? (
+                    <Box className={styles.lobbyContainer}>
+                        <Box className={styles.lobbyContent}>
+                            <Card className={styles.lobbyCard} elevation={8}>
+                                <CardContent sx={{ padding: '40px', textAlign: 'center' }}>
+                                    <Box sx={{ mb: 3 }}>
+                                        <MeetingRoomIcon sx={{ fontSize: 80, color: '#666', mb: 2 }} />
+                                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: '#000' }}>
+                                            Waiting for Host Approval
+                                        </Typography>
+                                        <Typography variant="body1" color="text.secondary">
+                                            Please wait while the host reviews your request to join the meeting...
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ mt: 4 }}>
+                                        <div className={styles.loader}></div>
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        </Box>
+                    </Box>
+                ) : 
+                
+                // Rejected UI
+                isRejected ? (
+                    <Box className={styles.lobbyContainer}>
+                        <Box className={styles.lobbyContent}>
+                            <Card className={styles.lobbyCard} elevation={8}>
+                                <CardContent sx={{ padding: '40px', textAlign: 'center' }}>
+                                    <Box sx={{ mb: 3 }}>
+                                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: '#d32f2f' }}>
+                                            Access Denied
+                                        </Typography>
+                                        <Typography variant="body1" color="text.secondary">
+                                            The host has declined your request to join this meeting.
+                                        </Typography>
+                                    </Box>
+                                    <Button 
+                                        variant="contained" 
+                                        onClick={() => window.location.href = "/home"}
+                                        sx={{ 
+                                            mt: 2,
+                                            bgcolor: '#000',
+                                            '&:hover': { bgcolor: '#333' }
+                                        }}
+                                    >
+                                        Return to Home
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        </Box>
+                    </Box>
+                ) :
+
                 <div className={`${styles.meetVideoContainer} ${videos.length === 0 ? styles.soloMode : ''}`}>
+                    
+                    {/* Join Requests Panel - Minimalistic & Beautiful */}
+                    {isHost && joinRequests.length > 0 && (
+                        <Box sx={{
+                            position: 'fixed',
+                            top: '20px',
+                            right: '20px',
+                            zIndex: 1000,
+                            maxWidth: '320px',
+                            animation: 'slideInRight 0.3s ease-out',
+                            '@keyframes slideInRight': {
+                                from: { transform: 'translateX(100%)', opacity: 0 },
+                                to: { transform: 'translateX(0)', opacity: 1 }
+                            }
+                        }}>
+                            <Card sx={{
+                                background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(250,250,250,0.98) 100%)',
+                                backdropFilter: 'blur(20px)',
+                                boxShadow: '0 20px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.5)',
+                                borderRadius: '16px',
+                                border: '1px solid rgba(255,255,255,0.8)',
+                                overflow: 'hidden'
+                            }}>
+                                <Box sx={{
+                                    background: 'linear-gradient(135deg, #000 0%, #1a1a1a 100%)',
+                                    color: 'white',
+                                    padding: '16px 20px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1.5
+                                }}>
+                                    <Box sx={{
+                                        width: 36,
+                                        height: 36,
+                                        borderRadius: '50%',
+                                        background: 'rgba(255,255,255,0.15)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}>
+                                        <PersonIcon sx={{ fontSize: 20 }} />
+                                    </Box>
+                                    <Box sx={{ flex: 1 }}>
+                                        <Typography variant="body2" sx={{ fontSize: '0.75rem', opacity: 0.8, fontWeight: 500 }}>
+                                            Waiting Room
+                                        </Typography>
+                                        <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 700, lineHeight: 1.2 }}>
+                                            {joinRequests.length} {joinRequests.length === 1 ? 'person' : 'people'}
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                                <Box sx={{ padding: '12px' }}>
+                                    {joinRequests.map((participant, index) => (
+                                        <Box key={index} sx={{ 
+                                            mb: 1.5,
+                                            p: '12px 14px',
+                                            background: 'linear-gradient(135deg, #fafafa 0%, #ffffff 100%)',
+                                            borderRadius: '12px',
+                                            border: '1px solid rgba(0,0,0,0.06)',
+                                            transition: 'all 0.2s ease',
+                                            '&:hover': {
+                                                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                                                transform: 'translateY(-1px)'
+                                            },
+                                            '&:last-child': { mb: 0 }
+                                        }}>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                                                <Box sx={{
+                                                    width: 32,
+                                                    height: 32,
+                                                    borderRadius: '50%',
+                                                    background: 'linear-gradient(135deg, #000 0%, #333 100%)',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    color: 'white',
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 700,
+                                                    mr: 1.5
+                                                }}>
+                                                    {participant.username.charAt(0).toUpperCase()}
+                                                </Box>
+                                                <Typography variant="body1" sx={{ 
+                                                    fontWeight: 600,
+                                                    fontSize: '0.9rem',
+                                                    color: '#1a1a1a',
+                                                    flex: 1
+                                                }}>
+                                                    {participant.username}
+                                                </Typography>
+                                            </Box>
+                                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                                <Button 
+                                                    size="small"
+                                                    fullWidth
+                                                    onClick={() => approveParticipant(participant.socketId)}
+                                                    sx={{ 
+                                                        bgcolor: '#000',
+                                                        color: 'white',
+                                                        textTransform: 'none',
+                                                        fontWeight: 600,
+                                                        fontSize: '0.8rem',
+                                                        py: 0.75,
+                                                        borderRadius: '8px',
+                                                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                                                        '&:hover': { 
+                                                            bgcolor: '#1a1a1a',
+                                                            boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+                                                            transform: 'translateY(-1px)'
+                                                        },
+                                                        transition: 'all 0.2s ease'
+                                                    }}
+                                                >
+                                                    Admit
+                                                </Button>
+                                                <IconButton 
+                                                    size="small"
+                                                    onClick={() => rejectParticipant(participant.socketId)}
+                                                    sx={{ 
+                                                        bgcolor: 'rgba(0,0,0,0.04)',
+                                                        borderRadius: '8px',
+                                                        width: 36,
+                                                        height: 36,
+                                                        transition: 'all 0.2s ease',
+                                                        '&:hover': { 
+                                                            bgcolor: '#ffebee',
+                                                            color: '#d32f2f',
+                                                            transform: 'rotate(90deg)'
+                                                        }
+                                                    }}
+                                                >
+                                                    <CloseIcon sx={{ fontSize: 18 }} />
+                                                </IconButton>
+                                            </Box>
+                                        </Box>
+                                    ))}
+                                </Box>
+                            </Card>
+                        </Box>
+                    )}
+
                     <div className={`${styles.chatRoom} ${showModal ? styles.active : ''}`}>
                         <div className={styles.chatContainer}>
                             <div className={styles.chatHeader}>
@@ -599,26 +848,37 @@ export default function VideoMeetComponent() {
                     {showModal && <div className={`${styles.chatBackdrop} ${styles.active}`} onClick={() => setModal(false)}></div>}
 
                     <div className={styles.buttonContainers}>
-                        <IconButton onClick={handleVideo} style={{ color: "white" }}>
-                            {(video === true) ? <VideocamIcon /> : <VideocamOffIcon />}
-                        </IconButton>
-                        <IconButton onClick={handleEndCall} style={{ color: "red" }}>
-                            <CallEndIcon />
-                        </IconButton>
-                        <IconButton onClick={handleAudio} style={{ color: "white" }}>
-                            {audio === true ? <MicIcon /> : <MicOffIcon />}
-                        </IconButton>
-
-                        {screenAvailable === true ?
-                            <IconButton onClick={handleScreen} style={{ color: "white" }}>
-                                {screen === true ? <ScreenShareIcon /> : <StopScreenShareIcon />}
-                            </IconButton> : <></>}
-
-                        <Badge badgeContent={newMessages} max={999} color='orange'>
-                            <IconButton onClick={() => setModal(!showModal)} style={{ color: "white" }}>
-                                <ChatIcon />
+                        <div className={styles.dockButton}>
+                            <IconButton onClick={handleVideo} className={styles.controlBtn}>
+                                {(video === true) ? <VideocamIcon /> : <VideocamOffIcon />}
                             </IconButton>
-                        </Badge>
+                        </div>
+                        <div className={styles.dockButton}>
+                            <IconButton onClick={handleEndCall} className={styles.controlBtn} sx={{ bgcolor: '#d32f2f !important' }}>
+                                <CallEndIcon />
+                            </IconButton>
+                        </div>
+                        <div className={styles.dockButton}>
+                            <IconButton onClick={handleAudio} className={styles.controlBtn}>
+                                {audio === true ? <MicIcon /> : <MicOffIcon />}
+                            </IconButton>
+                        </div>
+
+                        {screenAvailable === true && (
+                            <div className={styles.dockButton}>
+                                <IconButton onClick={handleScreen} className={styles.controlBtn}>
+                                    {screen === true ? <ScreenShareIcon /> : <StopScreenShareIcon />}
+                                </IconButton>
+                            </div>
+                        )}
+
+                        <div className={styles.dockButton}>
+                            <Badge badgeContent={newMessages} max={999} color='error'>
+                                <IconButton onClick={() => setModal(!showModal)} className={styles.controlBtn}>
+                                    <ChatIcon />
+                                </IconButton>
+                            </Badge>
+                        </div>
                     </div>
 
                     <video className={`${styles.meetUserVideo} ${videos.length === 0 ? styles.solo : ''}`} ref={localVideoref} autoPlay muted></video>
