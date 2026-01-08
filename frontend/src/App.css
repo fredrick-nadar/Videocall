@@ -306,4 +306,131 @@
   .LandingPageContainer div .imgContainer img{
     width: 240px;
   }
+
+}
+
+.homeContainer {
+  min-height: 100vh;
+  background: #f0f0f0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.colorBendsBackground {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.navBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.meetContainer {
+  display: flex;
+  padding: 60px 40px;
+  min-height: calc(100vh - 80px);
+  gap: 60px;
+  justify-content: center;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.leftPanel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rightPanel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: float 3s ease-in-out infinite;
+}
+
+.rightPanel > img {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 20px;
+  filter: drop-shadow(0 10px 40px rgba(0, 0, 0, 0.15));
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+/* Responsive Design for Home Page */
+@media (max-width: 968px) {
+  .meetContainer {
+    flex-direction: column;
+    padding: 40px 20px;
+    gap: 40px;
+  }
+  
+  .navBar {
+    padding: 15px 20px;
+  }
+  
+  .leftPanel h1 {
+    font-size: 2.2rem !important;
+  }
+  
+  .rightPanel {
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 640px) {
+  .navBar {
+    padding: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .navBar h2 {
+    font-size: 1.3rem !important;
+  }
+  
+  .meetContainer {
+    padding: 30px 15px;
+    gap: 30px;
+  }
+  
+  .leftPanel h1 {
+    font-size: 1.8rem !important;
+  }
+  
+  .leftPanel p {
+    font-size: 1rem !important;
+  }
+  
+  .rightPanel {
+    max-width: 300px;
+  }
 }

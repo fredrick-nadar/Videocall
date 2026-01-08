@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AuthContext } from '../contexts/AuthContext';
 import Snackbar from '@mui/material/Snackbar';
+import { useNavigate } from 'react-router-dom';
 
 const defaultTheme = createTheme({
   palette: {
@@ -34,6 +35,8 @@ export default function AuthPage() {
     const[message,setMessage] = React.useState('');
     const[formState,setFormState] = React.useState('0');
     const[open,setOpen] = React.useState(false);
+    
+    const navigate = useNavigate();
 
     const{handleLogin,handleRegister} = React.useContext(AuthContext);
 
@@ -45,10 +48,9 @@ export default function AuthPage() {
         if(formState === '0'){
           console.log('Attempting login...');
           let response = await handleLogin(userName,password);
-            
           console.log('Login response:', response);
-
-          
+          // Navigate to home page after successful login
+          navigate('/home');
         }
         if(formState === '1'){
           console.log('Attempting registration...');
@@ -57,7 +59,9 @@ export default function AuthPage() {
           setMessage(response);
           setOpen(true);
           setError("");
-          setFormState(0)
+          // Auto-login after registration and navigate to home
+          await handleLogin(userName, password);
+          setTimeout(() => navigate('/home'), 1500); // Show success message before navigating
         }
       }catch(err){
         let message = (err.response.data.message)

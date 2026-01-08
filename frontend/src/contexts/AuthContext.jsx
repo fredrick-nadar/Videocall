@@ -1,9 +1,8 @@
 import { createContext } from "react";
 import axios from "axios";
 import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Route, useNavigate } from "react-router-dom";
 import httpStatus from "http-status-codes";
-
 export const AuthContext = createContext({});
 
 const client = axios.create({
@@ -11,8 +10,6 @@ const client = axios.create({
 })
 
 export const AuthProvider = ({ children }) => {
-  const authContext = useContext(AuthContext);
-
   const [userData, setUserData] = useState(AuthContext);
   const handleRegister = async (name,username,password) => {
     try{
@@ -42,13 +39,13 @@ const handleLogin = async (username,password) => {
     if(request.status === httpStatus.OK){
         localStorage.setItem("token",request.data.token);
         return request.data.message || "Login successful";
+        
     }
 }catch(error) {
         throw error;
     }
 }
 
-const router = useNavigate();
 const data = {
     userData,
     setUserData,

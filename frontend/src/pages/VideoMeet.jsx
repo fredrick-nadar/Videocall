@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import io from "socket.io-client";
-import { Badge, IconButton, TextField } from '@mui/material';
+import { Badge, IconButton, TextField, Card, CardContent, Typography, Box, Divider } from '@mui/material';
 import { Button } from '@mui/material';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff'
@@ -12,6 +12,8 @@ import ScreenShareIcon from '@mui/icons-material/ScreenShare';
 import StopScreenShareIcon from '@mui/icons-material/StopScreenShare'
 import ChatIcon from '@mui/icons-material/Chat'
 import CloseIcon from '@mui/icons-material/Close'
+import PersonIcon from '@mui/icons-material/Person';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const server_url = "http://localhost:8000";
 
@@ -432,15 +434,131 @@ export default function VideoMeetComponent() {
     return (
         <div>
             {askForUsername === true ?
-                <div>
-                    <h2>Enter into Lobby </h2>
-                    <TextField id="outlined-basic" label="Username" value={username} onChange={e => setUsername(e.target.value)} variant="outlined" />
-                    <Button variant="contained" onClick={connect}>Connect</Button>
+                <Box className={styles.lobbyContainer}>
+                    <Box className={styles.lobbyContent}>
+                        <Card className={styles.lobbyCard} elevation={8}>
+                            <CardContent sx={{ padding: '40px' }}>
+                                <Box sx={{ textAlign: 'center', mb: 4 }}>
+                                    <VideocamIcon sx={{ fontSize: 60, color: '#000', mb: 2 }} />
+                                    <Typography variant="h4" component="h1" sx={{ 
+                                        fontWeight: 700, 
+                                        mb: 1,
+                                        color: '#000'
+                                    }}>
+                                        Ready to join?
+                                    </Typography>
+                                    <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                                        Set up your audio and video before joining the meeting
+                                    </Typography>
+                                </Box>
 
-                    <div>
-                        <video ref={localVideoref} autoPlay muted></video>
-                    </div>
-                </div> :
+                                <Divider sx={{ mb: 3, borderColor: '#e0e0e0' }} />
+
+                                <Box sx={{ mb: 3 }}>
+                                    <TextField 
+                                        fullWidth
+                                        id="username-input" 
+                                        label="Your Name" 
+                                        value={username} 
+                                        onChange={e => setUsername(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && username.trim() && connect()}
+                                        variant="outlined"
+                                        placeholder="Enter your name"
+                                        InputProps={{
+                                            startAdornment: <PersonIcon sx={{ mr: 1, color: 'action.active' }} />
+                                        }}
+                                        sx={{ 
+                                            mb: 2,
+                                            '& .MuiOutlinedInput-root': {
+                                                '& fieldset': { borderColor: '#000' },
+                                                '&:hover fieldset': { borderColor: '#000' },
+                                                '&.Mui-focused fieldset': { borderColor: '#000' }
+                                            },
+                                            '& .MuiInputLabel-root.Mui-focused': { color: '#000' }
+                                        }}
+                                    />
+                                    
+                                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+                                        Meeting Code: <strong>{window.location.pathname.substring(1)}</strong>
+                                    </Typography>
+                                </Box>
+
+                                <Box className={styles.videoPreviewContainer}>
+                                    <video 
+                                        ref={localVideoref} 
+                                        autoPlay 
+                                        muted 
+                                        className={styles.videoPreview}
+                                    />
+                                    <Box className={styles.previewControls}>
+                                        <IconButton 
+                                            onClick={handleVideo}
+                                            sx={{ 
+                                                bgcolor: video ? 'rgba(255,255,255,0.2)' : 'rgba(244,67,54,0.9)',
+                                                color: 'white',
+                                                '&:hover': { bgcolor: video ? 'rgba(255,255,255,0.3)' : 'rgba(211,47,47,0.9)' }
+                                            }}
+                                        >
+                                            {video ? <VideocamIcon /> : <VideocamOffIcon />}
+                                        </IconButton>
+                                        <IconButton 
+                                            onClick={handleAudio}
+                                            sx={{ 
+                                                bgcolor: audio ? 'rgba(255,255,255,0.2)' : 'rgba(244,67,54,0.9)',
+                                                color: 'white',
+                                                '&:hover': { bgcolor: audio ? 'rgba(255,255,255,0.3)' : 'rgba(211,47,47,0.9)' }
+                                            }}
+                                        >
+                                            {audio ? <MicIcon /> : <MicOffIcon />}
+                                        </IconButton>
+                                    </Box>
+                                    {!videoAvailable && !audioAvailable && (
+                                        <Box className={styles.permissionWarning}>
+                                            <Typography variant="body2" color="error">
+                                                ⚠️ Camera and microphone permissions are required
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                </Box>
+
+                                <Button 
+                                    fullWidth
+                                    variant="contained" 
+                                    size="large"
+                                    onClick={connect}
+                                    disabled={!username.trim()}
+                                    sx={{ 
+                                        mt: 3,
+                                        py: 1.5,
+                                        fontSize: '1.1rem',
+                                        textTransform: 'none',
+                                        bgcolor: '#000',
+                                        boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)',
+                                        '&:hover': {
+                                            bgcolor: '#333',
+                                            boxShadow: '0 6px 20px rgba(0, 0, 0, 0.4)'
+                                        },
+                                        '&:disabled': {
+                                            background: '#ccc'
+                                        }
+                                    }}
+                                >
+                                    Join Meeting
+                                </Button>
+
+                                <Box sx={{ mt: 2, textAlign: 'center' }}>
+                                    <Button 
+                                        startIcon={<SettingsIcon />}
+                                        size="small"
+                                        sx={{ textTransform: 'none', color: 'text.secondary' }}
+                                    >
+                                        Audio & Video Settings
+                                    </Button>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    </Box>
+                </Box> :
 
                 <div className={`${styles.meetVideoContainer} ${videos.length === 0 ? styles.soloMode : ''}`}>
                     <div className={`${styles.chatRoom} ${showModal ? styles.active : ''}`}>
@@ -465,7 +583,14 @@ export default function VideoMeetComponent() {
                             </div>
 
                             <div className={styles.chattingArea}>
-                                <TextField value={message} onChange={(e) => setMessage(e.target.value)} id="outlined-basic" label="Enter Your chat" variant="outlined" />
+                                <TextField 
+                                    value={message} 
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                                    id="outlined-basic" 
+                                    label="Enter Your chat" 
+                                    variant="outlined" 
+                                />
                                 <Button variant='contained' onClick={sendMessage}>Send</Button>
                             </div>
                         </div>
