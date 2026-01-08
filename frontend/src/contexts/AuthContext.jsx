@@ -61,12 +61,15 @@ const getHistoryOfUser = async() => {
 
     const addToUserHistory = async(meetingCode) => {
         try{
+            console.log('Adding to user history:', meetingCode);
             let request = await client.post("/add_to_activity",{
                 token: localStorage.getItem("token"),
                 meetingCode: meetingCode
             });
+            console.log('Added to history response:', request.data);
             return request.data;
         }catch(error) {
+            console.error('Error adding to history:', error);
             throw error;
         }
     }

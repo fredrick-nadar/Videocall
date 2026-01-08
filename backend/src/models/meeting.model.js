@@ -4,10 +4,9 @@ const meetingSchema = new Schema({
     user_id:{
         type:String
     },
-    meeting_id: {
+    meetingCode: {
         type: String,
         required: true,
-        unique: true,
         trim: true,
     },
     date: {

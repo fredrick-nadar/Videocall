@@ -4,6 +4,7 @@ import AuthPage from './pages/AuthPage.jsx';
 import { AuthProvider } from './contexts/AuthContext.jsx';
 import VideoMeet from './pages/VideoMeet.jsx';
 import Home from './pages/Home.jsx';
+import History from './pages/History.jsx';
 
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/:url" element={<VideoMeet />} />
+        <Route path="/history" element={<History />} />
       </Routes>
       </AuthProvider>
     </Router>

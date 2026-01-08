@@ -76,26 +76,42 @@ const register = async (req, res) => {
 const getUserHistory = async (req, res) => {
     const {token} = req.query;
     try{
-        const User = await User.findOne({token : token});
-        const meetings = await Meetings.find({user_id : User.username});
+        console.log('getUserHistory called with token:', token);
+        const user = await User.findOne({token : token});
+        if (!user) {
+            console.log('User not found with token:', token);
+            return res.status(httpStatus.NOT_FOUND).json({message: 'User not found'});
+        }
+        console.log('User found:', user.username);
+        const meetings = await Meetings.find({user_id : user.username});
+        console.log('Meetings found:', meetings.length, meetings);
         res.json(meetings);
     }catch(e){
-        res.json({message: e.message});
+        console.error('Error in getUserHistory:', e);
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({message: e.message});
     }
 }
 
 const addToHistory = async (req, res) => {
     const {token, meetingCode} = req.body;
+    console.log('addToHistory called with:', { token, meetingCode });
     try{
         const user = await User.findOne({token : token});
+        if (!user) {
+            console.log('User not found with token:', token);
+            return res.status(httpStatus.NOT_FOUND).json({message: 'User not found'});
+        }
+        console.log('User found:', user.username);
         const newMeeting = new Meetings({
             user_id : user.username,
-            meeting_code : meetingCode
+            meetingCode : meetingCode
         });
         await newMeeting.save();
+        console.log('Meeting saved successfully:', newMeeting);
         res.status(httpStatus.CREATED ).json({message: "Meeting added to history"});
     }catch(e){
-        res.json({message: e.message});
+        console.error('Error in addToHistory:', e);
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({message: e.message});
     }
 }
 

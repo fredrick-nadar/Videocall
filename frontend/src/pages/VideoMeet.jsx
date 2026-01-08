@@ -15,7 +15,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 
-const server_url = "https://localhost:8000"; // Replace with your signaling server URL
+const server_url = "http://localhost:8000"; // Replace with your signaling server URL
 
 var connections = {};
 
@@ -391,7 +391,7 @@ export default function VideoMeetComponent() {
             let tracks = localVideoref.current.srcObject.getTracks()
             tracks.forEach(track => track.stop())
         } catch (e) { }
-        window.location.href = "/"
+        window.location.href = "/home"
     }
 
     let openChat = () => {

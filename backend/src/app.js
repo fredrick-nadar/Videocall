@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import connectToSocket from "./controllers/socketManager.js";
 import userRoutes from "./routes/user.routes.js";
+import Meeting from "./models/meeting.model.js";
 
 dotenv.config();
 const app = express();
@@ -42,6 +43,18 @@ const ConnectDB = async () => {
     });
     console.log("✓ Connected to MongoDB successfully");
     console.log("Database:", mongoose.connection.name);
+    
+    // Drop old meeting_id index if it exists
+    try {
+      await Meeting.collection.dropIndex('meeting_id_1');
+      console.log("✓ Dropped old meeting_id index");
+    } catch (error) {
+      if (error.code === 27 || error.codeName === 'IndexNotFound') {
+        console.log("✓ No old index to drop (already clean)");
+      } else {
+        console.log("Note: Could not drop old index:", error.message);
+      }
+    }
     
     // Start server only after DB connection is established
     server.listen(PORT, () => {

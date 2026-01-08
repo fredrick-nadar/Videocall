@@ -23,8 +23,9 @@ function Home() {
         }
     }
 
-    let handleCreateMeeting = () => {
+    let handleCreateMeeting = async () => {
         const newMeetingCode = Math.random().toString(36).substring(2, 10);
+        await addToUserHistory(newMeetingCode)
         navigate(`/${newMeetingCode}`)
     }
 
