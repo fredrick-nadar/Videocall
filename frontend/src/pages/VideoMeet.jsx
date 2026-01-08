@@ -264,6 +264,12 @@ export default function VideoMeetComponent() {
 
             socketRef.current.on('user-left', (id) => {
                 setVideos((videos) => videos.filter((video) => video.socketId !== id))
+                
+                // Clean up the peer connection for the user who left
+                if (connections[id]) {
+                    connections[id].close();
+                    delete connections[id];
+                }
             })
 
             socketRef.current.on('user-joined', (id, clients) => {
