@@ -46,15 +46,42 @@ const handleLogin = async (username,password) => {
     }
 }
 
+const getHistoryOfUser = async() => {
+    try{
+        let request = await client.get("/get_all_activity",{
+            params:{
+                token: localStorage.getItem("token")
+            }
+        });
+        return request.data;
+    }catch(error) {
+        throw error;
+    }
+}
+
+    const addToUserHistory = async(meetingCode) => {
+        try{
+            let request = await client.post("/add_to_activity",{
+                token: localStorage.getItem("token"),
+                meetingCode: meetingCode
+            });
+            return request.data;
+        }catch(error) {
+            throw error;
+        }
+    }
+
 const data = {
     userData,
     setUserData,
     handleRegister,
-    handleLogin
+    handleLogin,
+    getHistoryOfUser,
+    addToUserHistory
 }
 return  (
     <AuthContext.Provider value={data}>
         {children}
     </AuthContext.Provider>
 )
-}
+} 

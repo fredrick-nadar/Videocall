@@ -32,7 +32,7 @@ function Home() {
         <div className="homeContainer">
             <div className="colorBendsBackground">
                 <ColorBends
-                    colors={["#ffffff", "#e0e0e0", "#c0c0c0"]}
+                    colors={["#ff5c7a", "#8a5cff", "#00ffd1"]}
                     rotation={30}
                     speed={0.3}
                     scale={1.2}
@@ -160,7 +160,7 @@ function Home() {
                                     paddingX: "40px",
                                     paddingY: "12px",
                                     fontSize: "1.1rem",
-                                    bgcolor: "#000",
+                                    bgcolor: "#070606ff",
                                     boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
                                     '&:hover': {
                                         bgcolor: "#333",
@@ -174,7 +174,7 @@ function Home() {
                     </div>
                 </div>
                 <div className='rightPanel'>
-                    <img src='/logo3.png' alt="Video Call Illustration" style={{ maxWidth: "500px", width: "100%", filter: "grayscale(100%) contrast(1.2)" }} />
+                    <img src='/VideoCallLobby.png' alt="Video Call Illustration" style={{ maxWidth: "500px", width: "100%" }} />
                 </div>
             </div>
         </div>

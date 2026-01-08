@@ -64,8 +64,9 @@ export default function AuthPage() {
           setTimeout(() => navigate('/home'), 1500); // Show success message before navigating
         }
       }catch(err){
-        let message = (err.response.data.message)
-        setError( message);
+        console.error('Auth error:', err);
+        let message = err.response?.data?.message || err.message || 'An error occurred. Please try again.';
+        setError(message);
       }
     }
 

@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import User from '../models/user.model.js';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import Meetings from '../models/meeting.model.js';
 
 const login = async (req, res) => {
     if (!req.body || !req.body.username || !req.body.password) {
@@ -72,4 +73,30 @@ const register = async (req, res) => {
     }
 }
 
-export { login, register };
+const getUserHistory = async (req, res) => {
+    const {token} = req.query;
+    try{
+        const User = await User.findOne({token : token});
+        const meetings = await Meetings.find({user_id : User.username});
+        res.json(meetings);
+    }catch(e){
+        res.json({message: e.message});
+    }
+}
+
+const addToHistory = async (req, res) => {
+    const {token, meetingCode} = req.body;
+    try{
+        const user = await User.findOne({token : token});
+        const newMeeting = new Meetings({
+            user_id : user.username,
+            meeting_code : meetingCode
+        });
+        await newMeeting.save();
+        res.status(httpStatus.CREATED ).json({message: "Meeting added to history"});
+    }catch(e){
+        res.json({message: e.message});
+    }
+}
+
+export { login, register,getUserHistory, addToHistory };
