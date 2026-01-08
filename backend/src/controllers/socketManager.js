@@ -39,7 +39,7 @@ const connectToSocket = (server) => {
       io.to(toId).emit("signal",socket.id,message);
      })
 
-     socket.on("chat-messsage",(data,sender)=>{
+     socket.on("chat-message",(data,sender)=>{
 
       const[matchingRoom,foundRoom] = Object.entries(connections).reduce(([foundRoom,isFound],[roomKey,roomValue])=>{
         if(!isFound && roomValue.includes(socket.id)){

@@ -4,12 +4,14 @@ import { Badge, IconButton, TextField } from '@mui/material';
 import { Button } from '@mui/material';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff'
+import styles from "../styles/videoComponent.module.css";
 import CallEndIcon from '@mui/icons-material/CallEnd'
 import MicIcon from '@mui/icons-material/Mic'
 import MicOffIcon from '@mui/icons-material/MicOff'
 import ScreenShareIcon from '@mui/icons-material/ScreenShare';
 import StopScreenShareIcon from '@mui/icons-material/StopScreenShare'
 import ChatIcon from '@mui/icons-material/Chat'
+import CloseIcon from '@mui/icons-material/Close'
 
 const server_url = "http://localhost:8000";
 
@@ -57,7 +59,6 @@ export default function VideoMeetComponent() {
     let [videos, setVideos] = useState([])
 
     useEffect(() => {
-        console.log("HELLO")
         getPermissions();
     })
 
@@ -409,6 +410,9 @@ export default function VideoMeetComponent() {
     };
 
     let sendMessage = () => {
+        if (message.trim().length === 0) {
+            return;
+        }
         console.log(socketRef.current);
         socketRef.current.emit('chat-message', message, username)
         setMessage("");
@@ -432,12 +436,17 @@ export default function VideoMeetComponent() {
                     </div>
                 </div> :
 
-                <div className>
-                    {showModal ? <div className>
-                        <div className>
-                            <h1>Chat</h1>
+                <div className={`${styles.meetVideoContainer} ${videos.length === 0 ? styles.soloMode : ''}`}>
+                    <div className={`${styles.chatRoom} ${showModal ? styles.active : ''}`}>
+                        <div className={styles.chatContainer}>
+                            <div className={styles.chatHeader}>
+                                <h1>Chat</h1>
+                                <IconButton onClick={() => setModal(false)} className={styles.closeChatBtn}>
+                                    <CloseIcon />
+                                </IconButton>
+                            </div>
 
-                            <div className>
+                            <div className={styles.chattingDisplay}>
                                 {messages.length !== 0 ? messages.map((item, index) => {
                                     console.log(messages)
                                     return (
@@ -449,14 +458,16 @@ export default function VideoMeetComponent() {
                                 }) : <p>No Messages Yet</p>}
                             </div>
 
-                            <div className>
+                            <div className={styles.chattingArea}>
                                 <TextField value={message} onChange={(e) => setMessage(e.target.value)} id="outlined-basic" label="Enter Your chat" variant="outlined" />
                                 <Button variant='contained' onClick={sendMessage}>Send</Button>
                             </div>
                         </div>
-                    </div> : <></>}
+                    </div>
 
-                    <div className="">
+                    {showModal && <div className={`${styles.chatBackdrop} ${styles.active}`} onClick={() => setModal(false)}></div>}
+
+                    <div className={styles.buttonContainers}>
                         <IconButton onClick={handleVideo} style={{ color: "white" }}>
                             {(video === true) ? <VideocamIcon /> : <VideocamOffIcon />}
                         </IconButton>
@@ -479,9 +490,9 @@ export default function VideoMeetComponent() {
                         </Badge>
                     </div>
 
-                    <video className="" ref={localVideoref} autoPlay muted></video>
+                    <video className={`${styles.meetUserVideo} ${videos.length === 0 ? styles.solo : ''}`} ref={localVideoref} autoPlay muted></video>
 
-                    <div className="">
+                    <div className={styles.conferenceView}>
                         {videos.map((video) => (
                             <div key={video.socketId}>
                                 <video
