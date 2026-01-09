@@ -24,41 +24,39 @@ const peerConfigConnections = {
     "iceServers": [
         { "urls": "stun:stun.l.google.com:19302" },
         { "urls": "stun:stun1.l.google.com:19302" },
-        { "urls": "stun:stun2.l.google.com:19302" },
-        { "urls": "stun:stun3.l.google.com:19302" },
-        { "urls": "stun:stun4.l.google.com:19302" },
+        // Numb TURN servers (free, reliable)
         {
-            "urls": "turn:openrelay.metered.ca:80",
-            "username": "openrelayproject",
-            "credential": "openrelayproject"
+            "urls": "turn:numb.viagenie.ca",
+            "username": "webrtc@live.com",
+            "credential": "muazkh"
+        },
+        // Twilio STUN
+        { "urls": "stun:global.stun.twilio.com:3478" },
+        // Metered TURN servers
+        {
+            "urls": "turn:a.relay.metered.ca:80",
+            "username": "85a48e37d085225dc2e6cfd9",
+            "credential": "5NufLyx7ZZIGDfFe",
         },
         {
-            "urls": "turn:openrelay.metered.ca:443",
-            "username": "openrelayproject",
-            "credential": "openrelayproject"
+            "urls": "turn:a.relay.metered.ca:80?transport=tcp",
+            "username": "85a48e37d085225dc2e6cfd9",
+            "credential": "5NufLyx7ZZIGDfFe",
         },
         {
-            "urls": "turn:openrelay.metered.ca:443?transport=tcp",
-            "username": "openrelayproject",
-            "credential": "openrelayproject"
+            "urls": "turn:a.relay.metered.ca:443",
+            "username": "85a48e37d085225dc2e6cfd9",
+            "credential": "5NufLyx7ZZIGDfFe",
         },
         {
-            "urls": "turn:relay.metered.ca:80",
-            "username": "f57e633f2e22341c37059ead",
-            "credential": "FTpxE9wPnJKfpnXP"
-        },
-        {
-            "urls": "turn:relay.metered.ca:443",
-            "username": "f57e633f2e22341c37059ead",
-            "credential": "FTpxE9wPnJKfpnXP"
-        },
-        {
-            "urls": "turns:relay.metered.ca:443?transport=tcp",
-            "username": "f57e633f2e22341c37059ead",
-            "credential": "FTpxE9wPnJKfpnXP"
+            "urls": "turns:a.relay.metered.ca:443?transport=tcp",
+            "username": "85a48e37d085225dc2e6cfd9",
+            "credential": "5NufLyx7ZZIGDfFe",
         }
     ],
-    "iceCandidatePoolSize": 10
+    "iceCandidatePoolSize": 10,
+    "bundlePolicy": "max-bundle",
+    "rtcpMuxPolicy": "require"
 }
 
 export default function VideoMeetComponent() {
@@ -318,7 +316,9 @@ export default function VideoMeetComponent() {
                     connections[socketListId].oniceconnectionstatechange = function() {
                         console.log(`ICE connection state (${socketListId}):`, connections[socketListId].iceConnectionState);
                         if (connections[socketListId].iceConnectionState === 'failed') {
-                            console.error('ICE connection failed - TURN servers may not be working');
+                            console.error('❌ ICE connection failed - TURN servers may not be working or peers unreachable');
+                        } else if (connections[socketListId].iceConnectionState === 'connected') {
+                            console.log('✅ ICE connection established successfully!');
                         }
                     };
 
@@ -328,8 +328,11 @@ export default function VideoMeetComponent() {
 
                     connections[socketListId].onicecandidate = function (event) {
                         if (event.candidate != null) {
-                            console.log('ICE Candidate type:', event.candidate.type);
+                            const candidateType = event.candidate.type;
+                            console.log(`ICE Candidate type: ${candidateType}${candidateType === 'relay' ? ' 🎉 TURN working!' : ''}`);
                             socketRef.current.emit('signal', socketListId, JSON.stringify({ 'ice': event.candidate }))
+                        } else {
+                            console.log('ICE candidate gathering completed');
                         }
                     }
 
