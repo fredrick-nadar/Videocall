@@ -802,7 +802,7 @@ export default function VideoMeetComponent() {
                         </div>
                     </div>
 
-                    <video className={`${styles.meetUserVideo} ${videos.length === 0 ? styles.solo : ''}`} ref={localVideoref} autoPlay muted></video>
+                    <video className={`${styles.meetUserVideo} ${videos.length === 0 ? styles.solo : ''}`} ref={localVideoref} autoPlay muted playsInline></video>
 
                     <div className={styles.conferenceView}>
                         {videos.map((video) => (
@@ -815,6 +815,8 @@ export default function VideoMeetComponent() {
                                         }
                                     }}
                                     autoPlay
+                                    playsInline
+                                    muted={false}
                                 >
                                 </video>
                             </div>
