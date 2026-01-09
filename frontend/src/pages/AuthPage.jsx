@@ -112,10 +112,10 @@ export default function AuthPage() {
         >
           {!isMobile && (
             <Box sx={{ position: 'relative', zIndex: 1, color: 'white', textAlign: 'center', p: 4 }}>
-              <Typography variant="h5" component="h1" sx={{ fontWeight: 900, mb: 2, textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
+              <Typography variant="h2" component="h1" sx={{ fontWeight: 700, mb: 2, textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
                 Welcome to VideoCall
               </Typography>
-              <Typography variant="h6" sx={{ opacity: 0.9, textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+              <Typography variant="h5" sx={{ opacity: 0.9, textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
                 Connect with anyone, anywhere
               </Typography>
             </Box>
@@ -217,6 +217,7 @@ export default function AuthPage() {
                 label="Full Name"
                 name="FullName"
                 autoFocus
+                autoComplete="off"
                 onChange={(e)=>setName(e.target.value)}
                 sx={{
                   '& .MuiOutlinedInput-root': {
@@ -241,6 +242,7 @@ export default function AuthPage() {
                 label="Username"
                 name="username"
                 autoFocus={formState === '0'}
+                autoComplete="off"
                 onChange={(e)=>setUserName(e.target.value)}
                 sx={{
                   '& .MuiOutlinedInput-root': {
@@ -265,6 +267,7 @@ export default function AuthPage() {
                 label="Password"
                 type="password"
                 id="password"
+                autoComplete="off"
                 onChange={(e)=>setPassword(e.target.value)}
                 sx={{
                   '& .MuiOutlinedInput-root': {

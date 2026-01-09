@@ -588,6 +588,7 @@ export default function VideoMeetComponent() {
                                         onKeyPress={(e) => e.key === 'Enter' && username.trim() && connect()}
                                         variant="outlined"
                                         placeholder="Enter your name"
+                                        autoComplete="off"
                                         InputProps={{
                                             startAdornment: <PersonIcon sx={{ mr: 1, color: 'action.active' }} />
                                         }}
@@ -874,7 +875,8 @@ export default function VideoMeetComponent() {
                                     onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                                     id="outlined-basic" 
                                     label="Enter Your chat" 
-                                    variant="outlined" 
+                                    variant="outlined"
+                                    autoComplete="off"
                                 />
                                 <Button variant='contained' onClick={sendMessage}>Send</Button>
                             </div>

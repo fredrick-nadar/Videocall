@@ -61,7 +61,11 @@ function Home() {
                     <Button 
                         startIcon={<RestoreIcon />}
                         onClick={() => navigate("/history")}
-                        sx={{ textTransform: "none", color: "#000" }}
+                        sx={{textTransform: "none",
+                            borderColor: "#000",
+                            color: "#000",
+                            '&:hover': { borderColor: "#000000ff"},
+                            borderRadius: "30px",}}
                     >
                         History
                     </Button>
@@ -76,7 +80,8 @@ function Home() {
                             textTransform: "none",
                             borderColor: "#000",
                             color: "#000",
-                            '&:hover': { borderColor: "#000", bgcolor: "rgba(0,0,0,0.05)" }
+                            '&:hover': { borderColor: "#000000ff", bgcolor: "#ff0000ff" , color: "#ffffff"},
+                            borderRadius: "30px",
                         }}
                     >
                         Logout
@@ -113,8 +118,8 @@ function Home() {
                             backdropFilter: "blur(10px)"
                         }}>
                             <CardContent>
-                                <h3 style={{ marginBottom: "15px", color: "#000" }}>Join a Meeting</h3>
-                                <div style={{ display: 'flex', gap: "10px", flexWrap: "wrap" }}>
+                                <h3 style={{ marginBottom: "15px", color: "#000" ,borderRadius:"50px" }}>Join a Meeting</h3>
+                                <div style={{ display: 'flex', gap: "10px", flexWrap: "wrap" ,borderRadius: "30px"}}>
                                     <TextField 
                                         value={meetingCode}
                                         onChange={e => setMeetingCode(e.target.value)}
@@ -123,7 +128,9 @@ function Home() {
                                         label="Enter Meeting Code" 
                                         variant="outlined"
                                         size="medium"
+                                        autoComplete="off"
                                         sx={{ 
+                                            
                                             flex: 1, 
                                             minWidth: "200px",
                                             '& .MuiOutlinedInput-root': {
@@ -145,7 +152,8 @@ function Home() {
                                             textTransform: "none",
                                             paddingX: "30px",
                                             bgcolor: "#000",
-                                            '&:hover': { bgcolor: "#333" }
+                                            '&:hover': { bgcolor: "#333" },
+                                            borderRadius: "30px",
                                         }}
                                     >
                                         Join
@@ -165,6 +173,7 @@ function Home() {
                                     textTransform: "none",
                                     paddingX: "40px",
                                     paddingY: "12px",
+                                    borderRadius: "50px",
                                     fontSize: "1.1rem",
                                     bgcolor: "#070606ff",
                                     boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
