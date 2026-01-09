@@ -40,7 +40,7 @@ A full-stack video calling application that enables real-time peer-to-peer video
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/videocall.git
+git clone https://github.com/fredrick_nadar/Videocall.git
 cd videocall
 ```
 
