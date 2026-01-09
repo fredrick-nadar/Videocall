@@ -1,8 +1,10 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import "../App.css"
 
 const Landing = () => {
+  const navigate = useNavigate();
+
   return (
     <div className='LandingPageContainer'>
       <nav>
@@ -10,9 +12,8 @@ const Landing = () => {
           <h1 style={{fontSize: "2rem"}}>Welcome to VideoCall</h1>
         </div>
         <div className='navHeader'>
-          <button path='/guest'>Join as Guest</button>
-          <button path='/auth'>Register</button>
-          <button path='/auth'>Sign In</button>
+          <button onClick={() => navigate('/auth?mode=register')}>Register</button>
+          <button onClick={() => navigate('/auth?mode=signin')}>Sign In</button>
         </div>
       </nav>
 

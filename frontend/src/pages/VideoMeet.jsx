@@ -66,11 +66,11 @@ export default function VideoMeetComponent() {
     let [videoAvailable, setVideoAvailable] = useState(true);
     let [audioAvailable, setAudioAvailable] = useState(true);
 
-    let [video, setVideo] = useState(true);
+    let [video, setVideo] = useState(false);
     let [audio, setAudio] = useState(true);
     let [screen, setScreen] = useState();
 
-    let [showModal, setModal] = useState(true);
+    let [showModal, setModal] = useState(false);
     let [screenAvailable, setScreenAvailable] = useState();
 
     let [messages, setMessages] = useState([])
@@ -82,6 +82,7 @@ export default function VideoMeetComponent() {
 
     const videoRef = useRef([])
     let [videos, setVideos] = useState([])
+    let [speakingUsers, setSpeakingUsers] = useState(new Set());
 
     // Waiting room states
     let [isHost, setIsHost] = useState(false);
@@ -92,6 +93,7 @@ export default function VideoMeetComponent() {
 
     useEffect(() => {
         getPermissions();
+        startPreview(); // Start camera preview in lobby
     }, [])
 
     const getPermissions = async () => {
@@ -119,6 +121,21 @@ export default function VideoMeetComponent() {
             }
         } catch (error) {
             console.log(error);
+        }
+    };
+
+    // Start camera preview for lobby
+    const startPreview = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: true, 
+                audio: false // Audio not needed for preview
+            });
+            if (localVideoref.current) {
+                localVideoref.current.srcObject = stream;
+            }
+        } catch (error) {
+            console.log('Preview error:', error);
         }
     };
 
@@ -338,30 +355,65 @@ export default function VideoMeetComponent() {
                         console.log('Track received:', event.track.kind, 'from', socketListId);
                         
                         const remoteStream = event.streams[0];
-                        let videoExists = videoRef.current.find(video => video.socketId === socketListId);
-
-                        if (videoExists) {
-                            setVideos(videos => {
-                                const updatedVideos = videos.map(video =>
+                        
+                        // Detect audio levels for speaking indicator
+                        if (event.track.kind === 'audio') {
+                            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                            const audioSource = audioContext.createMediaStreamSource(remoteStream);
+                            const analyser = audioContext.createAnalyser();
+                            analyser.fftSize = 512;
+                            analyser.smoothingTimeConstant = 0.8;
+                            audioSource.connect(analyser);
+                            
+                            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                            
+                            const detectSpeaking = () => {
+                                analyser.getByteFrequencyData(dataArray);
+                                const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+                                
+                                setSpeakingUsers(prev => {
+                                    const newSet = new Set(prev);
+                                    if (average > 20) { // Speaking threshold
+                                        newSet.add(socketListId);
+                                    } else {
+                                        newSet.delete(socketListId);
+                                    }
+                                    return newSet;
+                                });
+                                
+                                requestAnimationFrame(detectSpeaking);
+                            };
+                            
+                            detectSpeaking();
+                        }
+                        
+                        // Check if video container already exists for this socket
+                        setVideos(prevVideos => {
+                            const videoExists = prevVideos.find(video => video.socketId === socketListId);
+                            
+                            if (videoExists) {
+                                // Update existing video with new stream (handles both audio and video tracks)
+                                console.log('Updating existing video for:', socketListId);
+                                const updatedVideos = prevVideos.map(video =>
                                     video.socketId === socketListId ? { ...video, stream: remoteStream } : video
                                 );
                                 videoRef.current = updatedVideos;
                                 return updatedVideos;
-                            });
-                        } else {
-                            let newVideo = {
-                                socketId: socketListId,
-                                stream: remoteStream,
-                                autoplay: true,
-                                playsinline: true
-                            };
-
-                            setVideos(videos => {
-                                const updatedVideos = [...videos, newVideo];
+                            } else {
+                                // Only create new video container if it doesn't exist
+                                console.log('Creating new video container for:', socketListId);
+                                let newVideo = {
+                                    socketId: socketListId,
+                                    stream: remoteStream,
+                                    autoplay: true,
+                                    playsinline: true
+                                };
+                                
+                                const updatedVideos = [...prevVideos, newVideo];
                                 videoRef.current = updatedVideos;
                                 return updatedVideos;
-                            });
-                        }
+                            }
+                        });
                     };
 
                     // Use modern addTrack instead of deprecated addStream
@@ -494,6 +546,11 @@ export default function VideoMeetComponent() {
     }
 
     let connect = () => {
+        // Stop preview stream before joining meeting
+        if (localVideoref.current?.srcObject) {
+            localVideoref.current.srcObject.getTracks().forEach(track => track.stop());
+            localVideoref.current.srcObject = null;
+        }
         setAskForUsername(false);
         getMedia();
     }
@@ -505,8 +562,8 @@ export default function VideoMeetComponent() {
                     <Box className={styles.lobbyContent}>
                         <Card className={styles.lobbyCard} elevation={8}>
                             <CardContent sx={{ padding: '40px' }}>
-                                <Box sx={{ textAlign: 'center', mb: 4 }}>
-                                    <VideocamIcon sx={{ fontSize: 60, color: '#000', mb: 2 }} />
+                                <Box sx={{ textAlign: 'center', mb: 2 }}>
+                                    
                                     <Typography variant="h4" component="h1" sx={{ 
                                         fontWeight: 700, 
                                         mb: 1,
@@ -555,6 +612,7 @@ export default function VideoMeetComponent() {
                                         ref={localVideoref} 
                                         autoPlay 
                                         muted 
+                                        playsInline
                                         className={styles.videoPreview}
                                     />
                                     {!videoAvailable && !audioAvailable && (
@@ -573,7 +631,7 @@ export default function VideoMeetComponent() {
                                     onClick={connect}
                                     disabled={!username.trim()}
                                     sx={{ 
-                                        mt: 3,
+                                        mt: 1,
                                         py: 1.5,
                                         fontSize: '1.1rem',
                                         textTransform: 'none',
@@ -590,16 +648,6 @@ export default function VideoMeetComponent() {
                                 >
                                     Join Meeting
                                 </Button>
-
-                                <Box sx={{ mt: 2, textAlign: 'center' }}>
-                                    <Button 
-                                        startIcon={<SettingsIcon />}
-                                        size="small"
-                                        sx={{ textTransform: 'none', color: 'text.secondary' }}
-                                    >
-                                        Audio & Video Settings
-                                    </Button>
-                                </Box>
                             </CardContent>
                         </Card>
                     </Box>
@@ -842,11 +890,6 @@ export default function VideoMeetComponent() {
                             </IconButton>
                         </div>
                         <div className={styles.dockButton}>
-                            <IconButton onClick={handleEndCall} className={styles.controlBtn} sx={{ bgcolor: '#d32f2f !important' }}>
-                                <CallEndIcon />
-                            </IconButton>
-                        </div>
-                        <div className={styles.dockButton}>
                             <IconButton onClick={handleAudio} className={styles.controlBtn}>
                                 {audio === true ? <MicIcon /> : <MicOffIcon />}
                             </IconButton>
@@ -867,13 +910,18 @@ export default function VideoMeetComponent() {
                                 </IconButton>
                             </Badge>
                         </div>
+                        <div className={styles.dockButton}>
+                            <IconButton onClick={handleEndCall} className={styles.controlBtn} sx={{ bgcolor: '#d32f2f !important' , '&:hover': { bgcolor: '#b71c1c !important' }}}>
+                                <CallEndIcon />
+                            </IconButton>
+                        </div>
                     </div>
 
                     <video className={`${styles.meetUserVideo} ${videos.length === 0 ? styles.solo : ''}`} ref={localVideoref} autoPlay muted playsInline></video>
 
                     <div className={styles.conferenceView}>
                         {videos.map((video) => (
-                            <div key={video.socketId}>
+                            <div key={video.socketId} className={speakingUsers.has(video.socketId) ? styles.speaking : ''}>
                                 <video
                                     data-socket={video.socketId}
                                     ref={ref => {

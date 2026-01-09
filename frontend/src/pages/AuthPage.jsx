@@ -10,7 +10,8 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { AuthContext } from '../contexts/AuthContext';
 import Snackbar from '@mui/material/Snackbar';
 import { useNavigate } from 'react-router-dom';
@@ -39,6 +40,8 @@ export default function AuthPage() {
     const navigate = useNavigate();
 
     const{handleLogin,handleRegister} = React.useContext(AuthContext);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     let handleAuth = async (e) => {
       e.preventDefault();
@@ -107,14 +110,16 @@ export default function AuthPage() {
             }
           }}
         >
-          <Box sx={{ position: 'relative', zIndex: 1, color: 'white', textAlign: 'center', p: 4 }}>
-            <Typography variant="h3" component="h1" sx={{ fontWeight: 700, mb: 2, textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
-              Welcome to VideoCall
-            </Typography>
-            <Typography variant="h6" sx={{ opacity: 0.9, textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
-              Connect with anyone, anywhere
-            </Typography>
-          </Box>
+          {!isMobile && (
+            <Box sx={{ position: 'relative', zIndex: 1, color: 'white', textAlign: 'center', p: 4 }}>
+              <Typography variant="h5" component="h1" sx={{ fontWeight: 900, mb: 2, textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
+                Welcome to VideoCall
+              </Typography>
+              <Typography variant="h6" sx={{ opacity: 0.9, textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                Connect with anyone, anywhere
+              </Typography>
+            </Box>
+          )}
         </Grid>
         <Grid item xs={12} sm={6} md={6} lg={6} component={Paper} elevation={6} square sx={{
           width: { xs: '100%', sm: '50%', md: '50%' },
@@ -126,7 +131,7 @@ export default function AuthPage() {
         }}>
           <Box
             sx={{
-              my: 8,
+              my: 2,
               mx: 4,
               display: 'flex',
               flexDirection: 'column',

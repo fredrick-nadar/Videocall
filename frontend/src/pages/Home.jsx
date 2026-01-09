@@ -90,7 +90,7 @@ function Home() {
                         <h1 style={{ 
                             fontSize: "3rem", 
                             fontWeight: "700", 
-                            marginBottom: "20px",
+                            marginBottom: "10px",
                             color: "#000"
                         }}>
                             Premium Video Meetings, Now Free for Everyone
@@ -99,7 +99,7 @@ function Home() {
                         <p style={{ 
                             fontSize: "1.2rem", 
                             color: "#333", 
-                            marginBottom: "40px",
+                            marginBottom: "25px",
                             lineHeight: "1.6"
                         }}>
                             Connect, collaborate, and celebrate from anywhere with secure, high-quality video calls.

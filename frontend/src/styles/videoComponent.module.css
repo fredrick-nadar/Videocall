@@ -61,6 +61,28 @@ body {
     z-index: 2;
 }
 
+/* Speaking Indicator - White Glow (Google Meet style) */
+.conferenceView .speaking video {
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 
+                0 0 40px rgba(255, 255, 255, 0.5),
+                0 4px 20px rgba(0,0,0,0.5);
+    animation: speakingPulse 0.8s ease-in-out infinite;
+}
+
+@keyframes speakingPulse {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 
+                    0 0 40px rgba(255, 255, 255, 0.5),
+                    0 4px 20px rgba(0,0,0,0.5);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(255, 255, 255, 1), 
+                    0 0 60px rgba(255, 255, 255, 0.7),
+                    0 4px 20px rgba(0,0,0,0.5);
+    }
+}
+
 /* =========================================
    3. YOUR VIDEO (Self View)
    ========================================= */
@@ -96,11 +118,11 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 70vw;
-    max-width: 900px;
+    width: 85vw;
+    max-width: 1200px;
     height: auto;
     aspect-ratio: 16 / 9;
-    max-height: calc(100vh - 180px);
+    max-height: calc(100vh - 120px);
     border: 3px solid rgba(255, 255, 255, 0.3);
     border-radius: 16px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.7);
@@ -124,9 +146,8 @@ body {
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
-    
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     gap: 8px;
     padding: 12px 20px;
     
@@ -221,6 +242,7 @@ body {
     height: 100vh;
     background: #ffffff; /* Contrast: White Sidebar, Dark Video Area */
     border-left: 1px solid #333;
+    border-radius: 20px 20px 20px 20px;
     display: flex;
     flex-direction: column;
     z-index: 90;
@@ -252,6 +274,7 @@ body {
 .chatHeader {
     display: flex;
     align-items: center;
+    border-radius: 100px 100px 0 0;
     justify-content: space-between;
     padding: 16px 20px;
     border-bottom: 1px solid #eee;
@@ -309,7 +332,7 @@ body {
 
 .chattingArea {
     padding: 16px;
-    background: #fff;
+    background: transparent;
     border-top: 1px solid #eee;
     display: flex;
     gap: 8px;
@@ -360,6 +383,7 @@ body {
         position: fixed; /* Changed from absolute to fixed */
         right: 0;
         top: 0;
+        border-radius: 20px;
         bottom: 0;
         width: 380px;
         max-width: 85vw;
@@ -433,7 +457,7 @@ body {
    ========================================= */
 .lobbyContainer {
     min-height: 100vh;
-    background: #000;
+    background: glassy-radial-gradient;
     display: flex;
     align-items: center;
     justify-content: center;

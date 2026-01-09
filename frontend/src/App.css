@@ -202,7 +202,7 @@
   }
   
   .LandingPageContainer div .imgContainer img{
-    max-width: 350px;
+    max-width: 300px;
   }
 }
 
@@ -427,6 +427,6 @@
   }
   
   .rightPanel {
-    max-width: 300px;
+    max-width: 250px;
   }
 }
