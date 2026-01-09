@@ -24,6 +24,9 @@ const peerConfigConnections = {
     "iceServers": [
         { "urls": "stun:stun.l.google.com:19302" },
         { "urls": "stun:stun1.l.google.com:19302" },
+        { "urls": "stun:stun2.l.google.com:19302" },
+        { "urls": "stun:stun3.l.google.com:19302" },
+        { "urls": "stun:stun4.l.google.com:19302" },
         {
             "urls": "turn:openrelay.metered.ca:80",
             "username": "openrelayproject",
@@ -38,8 +41,24 @@ const peerConfigConnections = {
             "urls": "turn:openrelay.metered.ca:443?transport=tcp",
             "username": "openrelayproject",
             "credential": "openrelayproject"
+        },
+        {
+            "urls": "turn:relay.metered.ca:80",
+            "username": "f57e633f2e22341c37059ead",
+            "credential": "FTpxE9wPnJKfpnXP"
+        },
+        {
+            "urls": "turn:relay.metered.ca:443",
+            "username": "f57e633f2e22341c37059ead",
+            "credential": "FTpxE9wPnJKfpnXP"
+        },
+        {
+            "urls": "turns:relay.metered.ca:443?transport=tcp",
+            "username": "f57e633f2e22341c37059ead",
+            "credential": "FTpxE9wPnJKfpnXP"
         }
-    ]
+    ],
+    "iceCandidatePoolSize": 10
 }
 
 export default function VideoMeetComponent() {
@@ -247,12 +266,18 @@ export default function VideoMeetComponent() {
 
         socketRef.current.on('connect', () => {
             const storedUsername = localStorage.getItem("username") || "Anonymous";
-            socketRef.current.emit('join-call', window.location.href, storedUsername)
+            const meetingCode = window.location.href;
+            const wasHost = localStorage.getItem(`host_${meetingCode}`) === storedUsername;
+            
+            socketRef.current.emit('join-call', meetingCode, storedUsername, wasHost)
             socketIdRef.current = socketRef.current.id
 
             socketRef.current.on('you-are-host', () => {
                 setIsHost(true);
                 setIsApproved(true);
+                // Store host status with meeting code
+                const meetingCode = window.location.href;
+                localStorage.setItem(`host_${meetingCode}`, storedUsername);
             });
 
             socketRef.current.on('waiting-for-approval', () => {
@@ -289,8 +314,21 @@ export default function VideoMeetComponent() {
 
                     connections[socketListId] = new RTCPeerConnection(peerConfigConnections)
                     
+                    // Add ICE connection state logging for debugging
+                    connections[socketListId].oniceconnectionstatechange = function() {
+                        console.log(`ICE connection state (${socketListId}):`, connections[socketListId].iceConnectionState);
+                        if (connections[socketListId].iceConnectionState === 'failed') {
+                            console.error('ICE connection failed - TURN servers may not be working');
+                        }
+                    };
+
+                    connections[socketListId].onicegatheringstatechange = function() {
+                        console.log(`ICE gathering state (${socketListId}):`, connections[socketListId].iceGatheringState);
+                    };
+
                     connections[socketListId].onicecandidate = function (event) {
                         if (event.candidate != null) {
+                            console.log('ICE Candidate type:', event.candidate.type);
                             socketRef.current.emit('signal', socketListId, JSON.stringify({ 'ice': event.candidate }))
                         }
                     }

@@ -20,11 +20,28 @@ const connectToSocket = (server) => {
 
     console.log("Something connected");
 
-     socket.on("join-call",(path, username)=>{
+     socket.on("join-call",(path, username, wasHost)=>{
       if(connections[path] === undefined){
         connections[path] = []
         hosts[path] = socket.id // First person is the host
         waitingRoom[path] = []
+      }
+
+      // Check if this user is the host (first join) or was previously the host (reconnecting)
+      const isHost = hosts[path] === socket.id || (wasHost && connections[path].length === 0);
+      
+      // If user was host and is reconnecting to an active room, restore host status
+      if(wasHost && hosts[path] && hosts[path] !== socket.id){
+        // Transfer host to returning user if original host is still in room
+        const originalHostStillConnected = connections[path].includes(hosts[path]);
+        if(!originalHostStillConnected){
+          hosts[path] = socket.id;
+        }
+      }
+      
+      // Update host if this is the first connection or previous host disconnected
+      if(connections[path].length === 0){
+        hosts[path] = socket.id;
       }
 
       // Check if this user is the host
