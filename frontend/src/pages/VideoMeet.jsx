@@ -16,7 +16,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 
-const server_url = "http://localhost:8000";
+const server_url = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
 
 var connections = {};
 

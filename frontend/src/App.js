@@ -6,6 +6,8 @@ import VideoMeet from './pages/VideoMeet.jsx';
 import Home from './pages/Home.jsx';
 import History from './pages/History.jsx';
 
+const PORT = process.env.PORT || 8000;
+
 
 function App() {
   return (
